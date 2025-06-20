@@ -60,7 +60,7 @@ app.post('/api/summarize', async (req, res) => {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-4o-mini-2024-07-18',
         messages: [
           { role: 'system', content: chatPrompt },
           { role: 'user', content: transcript },
