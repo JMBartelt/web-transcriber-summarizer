@@ -11,7 +11,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "compile": "npx tsc && npx esbuild index.js --bundle --outfile=script/wavtools.js --format=iife && npx esbuild index.js --bundle --minify --outfile=script/wavtools.min.js --format=iife"
+    "compile": "npx tsc && npx esbuild index.js --bundle --outfile=script/wavtools.js --format=iife && npx esbuild index.js --bundle --minify --outfile=script/wavtools.min.js --format=iife",
+    "start": "node server.js"
   },
   "keywords": [
     "Wavtools",
@@ -24,5 +25,11 @@
   "devDependencies": {
     "esbuild": "^0.24.0",
     "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "multer": "^2.0.1",
+    "node-fetch": "^3.3.2",
+    "openai": "^5.5.1"
   }
 }
