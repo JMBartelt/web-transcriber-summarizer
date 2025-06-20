@@ -1,8 +1,10 @@
+import 'dotenv/config';
 import express from 'express';
 import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
 import fetch from 'node-fetch';
+import FormData from 'form-data';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
@@ -19,23 +21,20 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.post('/api/transcribe', upload.single('audio'), async (req, res) => {
   try {
     const filePath = req.file.path;
-    const fileStream = fs.createReadStream(filePath);
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
       return res.status(500).json({ error: 'Missing OPENAI_API_KEY' });
     }
-    const formData = new FormData();
-    formData.append('file', fileStream, {
-      filename: 'audio.wav',
-      contentType: 'audio/wav',
-    });
-    formData.append('model', 'whisper-1');
+    const form = new FormData();
+    form.append('file', fs.createReadStream(filePath), 'audio.wav');
+    form.append('model', 'whisper-1');
     const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${apiKey}`,
+        ...form.getHeaders(),
       },
-      body: formData,
+      body: form,
     });
     const data = await response.json();
     fs.unlink(filePath, () => {});
@@ -47,6 +46,7 @@ app.post('/api/transcribe', upload.single('audio'), async (req, res) => {
     console.error(err);
     res.status(500).json({ error: err.message });
   }
+// ...existing code...
 });
 
 app.post('/api/summarize', async (req, res) => {
