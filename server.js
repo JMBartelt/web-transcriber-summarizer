@@ -1,8 +1,13 @@
-const express = require('express');
-const multer = require('multer');
-const fs = require('fs');
-const path = require('path');
-const fetch = require('node-fetch');
+import express from 'express';
+import multer from 'multer';
+import fs from 'fs';
+import path from 'path';
+import fetch from 'node-fetch';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const upload = multer({ dest: 'uploads/' });
 const app = express();
