@@ -5,71 +5,60 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Audio Transcriber & Summarizer</title>
   <link
-    href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+    href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.4/dist/tailwind.min.css"
     rel="stylesheet"
   />
+  <style>
+    :root {
+      --primary: #00c1ca;
+      --secondary: #008a90;
+    }
+    .bg-primary { background-color: var(--primary); }
+    .bg-secondary { background-color: var(--secondary); }
+    .text-primary { color: var(--primary); }
+    .hover\:bg-secondary:hover { background-color: var(--secondary); }
+  </style>
 </head>
-<body class="p-8 bg-gray-100 font-sans">
-  <h1 class="text-2xl font-bold mb-4">Audio Transcriber &amp; Summarizer</h1>
-  <div class="flex gap-2 mb-4">
-    <button
-      id="recordBtn"
-      class="px-4 py-2 rounded bg-blue-500 text-white"
-    >
-      Start Recording
-    </button>
-    <button
-      id="stopBtn"
-      class="px-4 py-2 rounded bg-red-500 text-white"
-      disabled
-    >
-      Stop Recording
-    </button>
-    <button
-      id="summarizeBtn"
-      class="px-4 py-2 rounded bg-green-500 text-white"
-      disabled
-    >
-      Generate SOAP Notes
-    </button>
+<body class="bg-white font-sans min-h-screen flex items-center justify-center p-4">
+  <div class="max-w-xl w-full space-y-4">
+    <h1 class="text-3xl font-bold text-center text-primary">Audio Transcriber &amp; Summarizer</h1>
+    <div class="bg-white rounded-xl shadow p-6 space-y-4">
+      <div class="flex gap-2">
+        <button id="recordBtn" class="px-4 py-2 rounded-md text-white bg-primary hover:bg-secondary active:scale-95 transition">
+          Start Recording
+        </button>
+        <button id="stopBtn" class="px-4 py-2 rounded-md text-white bg-red-500 hover:bg-red-600 active:scale-95 transition" disabled>
+          Stop Recording
+        </button>
+        <button id="summarizeBtn" class="px-4 py-2 rounded-md text-white bg-primary hover:bg-secondary active:scale-95 transition" disabled>
+          Generate SOAP Notes
+        </button>
+      </div>
+      <textarea
+        id="transcript"
+        class="w-full h-40 p-2 border rounded-md focus:ring-2 focus:ring-primary"
+        placeholder="Transcript will appear here..."
+        readonly
+      ></textarea>
+      <div class="flex gap-2">
+        <button id="copyTranscript" class="px-4 py-2 rounded-md bg-primary text-white hover:bg-secondary active:scale-95 transition" disabled>
+          Copy Transcript
+        </button>
+        <button id="copySummary" class="px-4 py-2 rounded-md bg-primary text-white hover:bg-secondary active:scale-95 transition" disabled>
+          Copy Summary
+        </button>
+        <button id="copyBoth" class="px-4 py-2 rounded-md bg-primary text-white hover:bg-secondary active:scale-95 transition" disabled>
+          Copy Both
+        </button>
+      </div>
+      <textarea
+        id="summary"
+        class="w-full h-40 p-2 border rounded-md focus:ring-2 focus:ring-primary"
+        placeholder="Summary will appear here..."
+        readonly
+      ></textarea>
+    </div>
   </div>
-
-  <textarea
-    id="transcript"
-    class="w-full h-40 p-2 border rounded mb-2"
-    placeholder="Transcript will appear here..."
-    readonly
-  ></textarea>
-  <div class="flex gap-2 mb-4">
-    <button
-      id="copyTranscript"
-      class="px-4 py-2 rounded bg-gray-200"
-      disabled
-    >
-      Copy Transcript
-    </button>
-    <button
-      id="copySummary"
-      class="px-4 py-2 rounded bg-gray-200"
-      disabled
-    >
-      Copy Summary
-    </button>
-    <button
-      id="copyBoth"
-      class="px-4 py-2 rounded bg-gray-200"
-      disabled
-    >
-      Copy Both
-    </button>
-  </div>
-
-  <textarea
-    id="summary"
-    class="w-full h-40 p-2 border rounded mb-2"
-    placeholder="Summary will appear here..."
-    readonly
-  ></textarea>
 
   <script src="main.js"></script>
 </body>
