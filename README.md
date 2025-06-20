@@ -112,6 +112,21 @@ trackOffset.currentTime; // time in track
 When modifying the repository, to create appropriate TypeScript types and
 JavaScript bundles, use `npm run compile`.
 
+## Running the demo server
+
+This repository also includes a simple Express application for recording audio
+in the browser and submitting it to OpenAI for transcription and summarization.
+To start the server locally:
+
+```bash
+npm install
+npm start
+```
+
+By default the server runs on port `3000`. Make sure your `OPENAI_API_KEY`
+environment variable is set before starting so that requests to the OpenAI API
+succeed.
+
 # Acknowledgements and contact
 
 Thanks to the OpenAI Realtime team! Without their awesome work this library would not
