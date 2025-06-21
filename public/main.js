@@ -1,6 +1,6 @@
 let mediaRecorder;
-let audioChunks = [];
 let stream;
+const CHUNK_DURATION_MS = 60000; // 1 minute chunks
 
 const recordBtn = document.getElementById('recordBtn');
 const stopBtn = document.getElementById('stopBtn');
@@ -12,7 +12,6 @@ const copySummaryBtn = document.getElementById('copySummary');
 const copyBothBtn = document.getElementById('copyBoth');
 
 recordBtn.addEventListener('click', async () => {
-  audioChunks = [];
   transcriptEl.value = '';
   summaryEl.value = '';
   copyTranscriptBtn.disabled = true;
@@ -20,13 +19,16 @@ recordBtn.addEventListener('click', async () => {
   copyBothBtn.disabled = true;
   summarizeBtn.disabled = true;
   stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  mediaRecorder = new MediaRecorder(stream);
-  mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+  mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+  mediaRecorder.ondataavailable = async (e) => {
+    if (e.data.size > 0) {
+      await sendChunk(e.data);
+    }
+  };
   mediaRecorder.onstop = () => {
     stream.getTracks().forEach((track) => track.stop());
-    transcribeAudio();
   };
-  mediaRecorder.start();
+  mediaRecorder.start(CHUNK_DURATION_MS);
   recordBtn.disabled = true;
   stopBtn.disabled = false;
 });
@@ -37,19 +39,21 @@ stopBtn.addEventListener('click', () => {
   stopBtn.disabled = true;
 });
 
-async function transcribeAudio() {
-  const blob = new Blob(audioChunks, { type: 'audio/wav' });
+async function sendChunk(blob) {
   const formData = new FormData();
-  formData.append('audio', blob, 'recording.wav');
+  formData.append('audio', blob, 'chunk.webm');
   const res = await fetch('/api/transcribe', { method: 'POST', body: formData });
   const data = await res.json();
-  transcriptEl.value = data.transcript;
-  copyTranscriptBtn.disabled = false;
-  summarizeBtn.disabled = false;
-  if (summaryEl.value.trim()) {
-    copyBothBtn.disabled = false;
+  if (res.ok) {
+    transcriptEl.value += data.transcript + ' ';
+    copyTranscriptBtn.disabled = false;
+    summarizeBtn.disabled = false;
+    if (summaryEl.value.trim()) {
+      copyBothBtn.disabled = false;
+    }
   }
 }
+
 
 summarizeBtn.addEventListener('click', async () => {
   const sumRes = await fetch('/api/summarize', {

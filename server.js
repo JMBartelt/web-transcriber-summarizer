@@ -26,7 +26,7 @@ app.post('/api/transcribe', upload.single('audio'), async (req, res) => {
       return res.status(500).json({ error: 'Missing OPENAI_API_KEY' });
     }
     const form = new FormData();
-    form.append('file', fs.createReadStream(filePath), 'audio.wav');
+    form.append('file', fs.createReadStream(filePath), 'audio.webm');
     form.append('model', 'whisper-1');
     const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
       method: 'POST',
