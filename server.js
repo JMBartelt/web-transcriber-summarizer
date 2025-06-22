@@ -19,15 +19,17 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.post('/api/transcribe', upload.single('audio'), async (req, res) => {
+  const filePath = req.file.path;
   try {
-    const filePath = req.file.path;
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
-      return res.status(500).json({ error: 'Missing OPENAI_API_KEY' });
+      throw new Error('Missing OPENAI_API_KEY');
     }
+
     const form = new FormData();
     form.append('file', fs.createReadStream(filePath), 'audio.webm');
     form.append('model', 'whisper-1');
+
     const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
       method: 'POST',
       headers: {
@@ -36,17 +38,25 @@ app.post('/api/transcribe', upload.single('audio'), async (req, res) => {
       },
       body: form,
     });
+
     const data = await response.json();
-    fs.unlink(filePath, () => {});
+
     if (!response.ok) {
-      return res.status(500).json({ error: data });
+      throw new Error(JSON.stringify(data));
     }
+
     res.json({ transcript: data.text });
   } catch (err) {
-    console.error(err);
+    console.error('Transcription error:', err);
     res.status(500).json({ error: err.message });
+  } finally {
+    // Clean up the file after the request is complete
+    fs.unlink(filePath, (unlinkErr) => {
+      if (unlinkErr) {
+        console.error('Error deleting file:', unlinkErr);
+      }
+    });
   }
-// ...existing code...
 });
 
 app.post('/api/summarize', async (req, res) => {

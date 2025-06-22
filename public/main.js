@@ -1,5 +1,6 @@
 let mediaRecorder;
 let stream;
+let isRecording = false;
 const CHUNK_DURATION_MS = 60000; // 1 minute chunks
 
 const recordBtn = document.getElementById('recordBtn');
@@ -11,6 +12,28 @@ const copyTranscriptBtn = document.getElementById('copyTranscript');
 const copySummaryBtn = document.getElementById('copySummary');
 const copyBothBtn = document.getElementById('copyBoth');
 
+// helper to start a new recorder for each segment
+async function startNewRecorder() {
+  mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+  mediaRecorder.ondataavailable = async (e) => {
+    if (e.data.size > 0) {
+      await sendChunk(e.data);
+    }
+  };
+  mediaRecorder.onstop = () => {
+    // if still recording, start again for next chunk
+    if (isRecording) startNewRecorder();
+    else stream.getTracks().forEach(track => track.stop());
+  };
+  mediaRecorder.start();
+  // stop this recorder after one chunk duration so each blob gets full headers
+  setTimeout(() => {
+    if (mediaRecorder.state === 'recording') {
+      mediaRecorder.stop();
+    }
+  }, CHUNK_DURATION_MS);
+}
+
 recordBtn.addEventListener('click', async () => {
   transcriptEl.value = '';
   summaryEl.value = '';
@@ -19,38 +42,47 @@ recordBtn.addEventListener('click', async () => {
   copyBothBtn.disabled = true;
   summarizeBtn.disabled = true;
   stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
-  mediaRecorder.ondataavailable = async (e) => {
-    if (e.data.size > 0) {
-      await sendChunk(e.data);
-    }
-  };
-  mediaRecorder.onstop = () => {
-    stream.getTracks().forEach((track) => track.stop());
-  };
-  mediaRecorder.start(CHUNK_DURATION_MS);
+  isRecording = true;
+  startNewRecorder();
   recordBtn.disabled = true;
   stopBtn.disabled = false;
 });
 
 stopBtn.addEventListener('click', () => {
-  mediaRecorder.stop();
+  isRecording = false;
+  if (mediaRecorder && mediaRecorder.state === 'recording') {
+    mediaRecorder.stop();
+  }
   recordBtn.disabled = false;
   stopBtn.disabled = true;
 });
 
 async function sendChunk(blob) {
-  const formData = new FormData();
-  formData.append('audio', blob, 'chunk.webm');
-  const res = await fetch('/api/transcribe', { method: 'POST', body: formData });
-  const data = await res.json();
-  if (res.ok) {
+  try {
+    const formData = new FormData();
+    formData.append('audio', blob, 'chunk.webm');
+    const res = await fetch('/api/transcribe', { method: 'POST', body: formData });
+    const data = await res.json();
+    
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to transcribe audio chunk');
+    }
+    
     transcriptEl.value += data.transcript + ' ';
     copyTranscriptBtn.disabled = false;
     summarizeBtn.disabled = false;
     if (summaryEl.value.trim()) {
       copyBothBtn.disabled = false;
     }
+  } catch (error) {
+    console.error('Error sending chunk:', error);
+    // Stop recording on error to prevent further failed chunks
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+      mediaRecorder.stop();
+    }
+    recordBtn.disabled = false;
+    stopBtn.disabled = true;
+    alert('Error transcribing audio: ' + error.message);
   }
 }
 
