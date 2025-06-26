@@ -7,6 +7,7 @@ import fetch from 'node-fetch';
 import FormData from 'form-data';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import rateLimit from 'express-rate-limit';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -18,7 +19,18 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.post('/api/authenticate', async (req, res) => {
+// Rate limiting for authentication endpoint
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // limit each IP to 5 requests per windowMs
+  message: {
+    error: 'Too many authentication attempts, please try again later.'
+  },
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
+
+app.post('/api/authenticate', authLimiter, async (req, res) => {
   try {
     const { password } = req.body;
     const CORRECT_PASSWORD = process.env.APP_PASSWORD;
