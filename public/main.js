@@ -1,6 +1,8 @@
 let mediaRecorder;
 let stream;
 let isRecording = false;
+let cachedPassword = null;
+let isAuthenticated = false;
 const CHUNK_DURATION_MS = 60000; // 1 minute chunks
 
 const recordBtn = document.getElementById('recordBtn');
@@ -13,6 +15,10 @@ const copySummaryBtn = document.getElementById('copySummary');
 const copyBothBtn = document.getElementById('copyBoth');
 const recordIndicator = document.getElementById('recordIndicator');
 const summaryIndicator = document.getElementById('summaryIndicator');
+const authenticateBtn = document.getElementById('authenticateBtn');
+const passwordInput = document.getElementById('password');
+const authSection = document.getElementById('authSection');
+const authStatus = document.getElementById('authStatus');
 
 // helper to start a new recorder for each segment
 async function startNewRecorder() {
@@ -36,7 +42,54 @@ async function startNewRecorder() {
   }, CHUNK_DURATION_MS);
 }
 
+// Disable recording button initially
+recordBtn.disabled = true;
+
+authenticateBtn.addEventListener('click', async () => {
+  const password = passwordInput.value;
+  if (!password) {
+    alert('Please enter a password');
+    return;
+  }
+
+  try {
+    authenticateBtn.disabled = true;
+    authenticateBtn.textContent = 'Authenticating...';
+    
+    const response = await fetch('/api/authenticate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      cachedPassword = password;
+      isAuthenticated = true;
+      authSection.classList.add('hidden');
+      authStatus.classList.remove('hidden');
+      recordBtn.disabled = false;
+      alert('Authentication successful! You can now start recording.');
+    } else {
+      alert('Authentication failed: ' + (data.error || 'Invalid password'));
+      authenticateBtn.disabled = false;
+      authenticateBtn.textContent = 'Authenticate';
+    }
+  } catch (error) {
+    console.error('Authentication error:', error);
+    alert('Authentication error: ' + error.message);
+    authenticateBtn.disabled = false;
+    authenticateBtn.textContent = 'Authenticate';
+  }
+});
+
 recordBtn.addEventListener('click', async () => {
+  if (!isAuthenticated) {
+    alert('Please authenticate first');
+    return;
+  }
+  
   // show recording indicator
   recordIndicator.classList.remove('hidden');
   // change button color to light grey
@@ -71,10 +124,9 @@ stopBtn.addEventListener('click', () => {
 
 async function sendChunk(blob) {
   try {
-    const password = document.getElementById('password').value;
     const formData = new FormData();
     formData.append('audio', blob, 'chunk.webm');
-    formData.append('password', password);
+    formData.append('password', cachedPassword);
     const res = await fetch('/api/transcribe', { method: 'POST', body: formData });
     const data = await res.json();
     
@@ -112,13 +164,12 @@ summarizeBtn.addEventListener('click', async () => {
   summarizeBtn.disabled = true;
   
   try {
-    const password = document.getElementById('password').value;
     const sumRes = await fetch('/api/summarize', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
         transcript: transcriptEl.value,
-        password: password
+        password: cachedPassword
       })
     });
     const sumData = await sumRes.json();

@@ -20,19 +20,30 @@
         >● Generating Summary...</span
       >
     </div>
-    <div class="mb-4">
+    <div id="authSection" class="mb-4">
       <label
         for="password"
         class="block text-sm font-medium text-gray-700 mb-2"
       >
         Access Password:
       </label>
-      <input
-        type="password"
-        id="password"
-        class="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        placeholder="Enter password"
-      />
+      <div class="flex gap-2">
+        <input
+          type="password"
+          id="password"
+          class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Enter password"
+        />
+        <button
+          id="authenticateBtn"
+          class="px-4 py-2 rounded bg-purple-500 text-white"
+        >
+          Authenticate
+        </button>
+      </div>
+    </div>
+    <div id="authStatus" class="mb-4 hidden">
+      <span class="text-green-600 font-bold">✓ Authenticated</span>
     </div>
 
     <div class="flex gap-2 mb-4">

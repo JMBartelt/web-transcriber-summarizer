@@ -18,6 +18,26 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.post('/api/authenticate', async (req, res) => {
+  try {
+    const { password } = req.body;
+    const CORRECT_PASSWORD = process.env.APP_PASSWORD || 'transcribe123';
+
+    if (!password) {
+      return res.status(400).json({ error: 'Password is required' });
+    }
+
+    if (password !== CORRECT_PASSWORD) {
+      return res.status(401).json({ error: 'Invalid password' });
+    }
+
+    res.json({ success: true, message: 'Authentication successful' });
+  } catch (err) {
+    console.error('Authentication error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 app.post('/api/transcribe', upload.single('audio'), async (req, res) => {
   const filePath = req.file.path;
   try {
