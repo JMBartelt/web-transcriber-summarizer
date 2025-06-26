@@ -21,6 +21,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.post('/api/transcribe', upload.single('audio'), async (req, res) => {
   const filePath = req.file.path;
   try {
+    // Check password
+    const { password } = req.body;
+    const CORRECT_PASSWORD = 'transcribe123'; // Change this to your desired password
+    
+    if (!password || password !== CORRECT_PASSWORD) {
+      return res.status(401).json({ error: 'Invalid password' });
+    }
+
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
       throw new Error('Missing OPENAI_API_KEY');
@@ -61,7 +69,13 @@ app.post('/api/transcribe', upload.single('audio'), async (req, res) => {
 
 app.post('/api/summarize', async (req, res) => {
   try {
-    const { transcript, prompt } = req.body;
+    const { transcript, prompt, password } = req.body;
+    const CORRECT_PASSWORD = 'transcribe123'; // Change this to your desired password
+    
+    if (!password || password !== CORRECT_PASSWORD) {
+      return res.status(401).json({ error: 'Invalid password' });
+    }
+
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
       return res.status(500).json({ error: 'Missing OPENAI_API_KEY' });

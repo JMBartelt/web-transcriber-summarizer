@@ -71,8 +71,10 @@ stopBtn.addEventListener('click', () => {
 
 async function sendChunk(blob) {
   try {
+    const password = document.getElementById('password').value;
     const formData = new FormData();
     formData.append('audio', blob, 'chunk.webm');
+    formData.append('password', password);
     const res = await fetch('/api/transcribe', { method: 'POST', body: formData });
     const data = await res.json();
     
@@ -110,10 +112,14 @@ summarizeBtn.addEventListener('click', async () => {
   summarizeBtn.disabled = true;
   
   try {
+    const password = document.getElementById('password').value;
     const sumRes = await fetch('/api/summarize', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ transcript: transcriptEl.value })
+      body: JSON.stringify({ 
+        transcript: transcriptEl.value,
+        password: password
+      })
     });
     const sumData = await sumRes.json();
     summaryEl.value = sumData.summary;
