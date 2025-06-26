@@ -77,7 +77,6 @@ authenticateBtn.addEventListener('click', async () => {
       authSection.classList.add('hidden');
       authStatus.classList.remove('hidden');
       recordBtn.disabled = false;
-      alert('Authentication successful! You can now start recording.');
     } else {
       alert('Authentication failed: ' + (data.error || 'Invalid password'));
       authenticateBtn.disabled = false;
