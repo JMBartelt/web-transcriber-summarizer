@@ -11,6 +11,7 @@ const summaryEl = document.getElementById('summary');
 const copyTranscriptBtn = document.getElementById('copyTranscript');
 const copySummaryBtn = document.getElementById('copySummary');
 const copyBothBtn = document.getElementById('copyBoth');
+const recordIndicator = document.getElementById('recordIndicator');
 
 // helper to start a new recorder for each segment
 async function startNewRecorder() {
@@ -35,6 +36,11 @@ async function startNewRecorder() {
 }
 
 recordBtn.addEventListener('click', async () => {
+  // show recording indicator
+  recordIndicator.classList.remove('hidden');
+  // change button color to light grey
+  recordBtn.classList.remove('bg-blue-500', 'text-white');
+  recordBtn.classList.add('bg-gray-300', 'text-gray-700');
   transcriptEl.value = '';
   summaryEl.value = '';
   copyTranscriptBtn.disabled = true;
@@ -49,6 +55,11 @@ recordBtn.addEventListener('click', async () => {
 });
 
 stopBtn.addEventListener('click', () => {
+  // hide recording indicator
+  recordIndicator.classList.add('hidden');
+  // restore button color
+  recordBtn.classList.remove('bg-gray-300', 'text-gray-700');
+  recordBtn.classList.add('bg-blue-500', 'text-white');
   isRecording = false;
   if (mediaRecorder && mediaRecorder.state === 'recording') {
     mediaRecorder.stop();
@@ -80,6 +91,11 @@ async function sendChunk(blob) {
     if (mediaRecorder && mediaRecorder.state === 'recording') {
       mediaRecorder.stop();
     }
+    // hide recording indicator
+    recordIndicator.classList.add('hidden');
+    // restore button color
+    recordBtn.classList.remove('bg-gray-300', 'text-gray-700');
+    recordBtn.classList.add('bg-blue-500', 'text-white');
     recordBtn.disabled = false;
     stopBtn.disabled = true;
     alert('Error transcribing audio: ' + error.message);
