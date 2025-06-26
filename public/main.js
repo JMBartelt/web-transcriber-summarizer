@@ -45,6 +45,13 @@ async function startNewRecorder() {
 // Disable recording button initially
 recordBtn.disabled = true;
 
+// Add Enter key support for password input
+passwordInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    authenticateBtn.click();
+  }
+});
+
 authenticateBtn.addEventListener('click', async () => {
   const password = passwordInput.value;
   if (!password) {
