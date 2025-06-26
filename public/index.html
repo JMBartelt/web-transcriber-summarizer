@@ -1,94 +1,88 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Audio Transcriber & Summarizer</title>
-  <link
-    href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
-    rel="stylesheet"
-  />
-</head>
-<body class="p-8 bg-gray-100 font-sans">
-  <h1 class="text-2xl font-bold mb-4">Audio Transcriber &amp; Summarizer</h1>
-  <div id="recordIndicator" class="mb-4 hidden">
-    <span class="animate-pulse text-red-600 font-bold">● Recording...</span>
-  </div>
-  <div id="summaryIndicator" class="mb-4 hidden">
-    <span class="animate-pulse text-blue-600 font-bold">● Generating Summary...</span>
-  </div>
-  <div class="mb-4">
-    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
-      Access Password:
-    </label>
-    <input
-      type="password"
-      id="password"
-      class="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-      placeholder="Enter password"
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AutoScribe - Go With The Flow</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
     />
-  </div>
+  </head>
+  <body class="p-8 bg-gray-100 font-sans">
+    <h1 class="text-2xl font-bold mb-4">AutoScribe</h1>
+    <div id="recordIndicator" class="mb-4 hidden">
+      <span class="animate-pulse text-red-600 font-bold">● Recording...</span>
+    </div>
+    <div id="summaryIndicator" class="mb-4 hidden">
+      <span class="animate-pulse text-blue-600 font-bold"
+        >● Generating Summary...</span
+      >
+    </div>
+    <div class="mb-4">
+      <label
+        for="password"
+        class="block text-sm font-medium text-gray-700 mb-2"
+      >
+        Access Password:
+      </label>
+      <input
+        type="password"
+        id="password"
+        class="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        placeholder="Enter password"
+      />
+    </div>
 
-  <div class="flex gap-2 mb-4">
-    <button
-      id="recordBtn"
-      class="px-4 py-2 rounded bg-blue-500 text-white"
-    >
-      Start Recording
-    </button>
-    <button
-      id="stopBtn"
-      class="px-4 py-2 rounded bg-red-500 text-white"
-      disabled
-    >
-      Stop Recording
-    </button>
-    <button
-      id="summarizeBtn"
-      class="px-4 py-2 rounded bg-green-500 text-white"
-      disabled
-    >
-      Generate SOAP Notes
-    </button>
-  </div>
+    <div class="flex gap-2 mb-4">
+      <button id="recordBtn" class="px-4 py-2 rounded bg-blue-500 text-white">
+        Start Recording
+      </button>
+      <button
+        id="stopBtn"
+        class="px-4 py-2 rounded bg-red-500 text-white"
+        disabled
+      >
+        Stop Recording
+      </button>
+      <button
+        id="summarizeBtn"
+        class="px-4 py-2 rounded bg-green-500 text-white"
+        disabled
+      >
+        Generate SOAP Notes
+      </button>
+    </div>
 
-  <textarea
-    id="transcript"
-    class="w-full h-40 p-2 border rounded mb-2"
-    placeholder="Transcript will appear here..."
-    readonly
-  ></textarea>
-  <div class="flex gap-2 mb-4">
-    <button
-      id="copyTranscript"
-      class="px-4 py-2 rounded bg-gray-200"
-      disabled
-    >
-      Copy Transcript
-    </button>
-    <button
-      id="copySummary"
-      class="px-4 py-2 rounded bg-gray-200"
-      disabled
-    >
-      Copy Summary
-    </button>
-    <button
-      id="copyBoth"
-      class="px-4 py-2 rounded bg-gray-200"
-      disabled
-    >
-      Copy Both
-    </button>
-  </div>
+    <textarea
+      id="transcript"
+      class="w-full h-40 p-2 border rounded mb-2"
+      placeholder="Transcript will appear here..."
+      readonly
+    ></textarea>
+    <div class="flex gap-2 mb-4">
+      <button
+        id="copyTranscript"
+        class="px-4 py-2 rounded bg-gray-200"
+        disabled
+      >
+        Copy Transcript
+      </button>
+      <button id="copySummary" class="px-4 py-2 rounded bg-gray-200" disabled>
+        Copy Summary
+      </button>
+      <button id="copyBoth" class="px-4 py-2 rounded bg-gray-200" disabled>
+        Copy Both
+      </button>
+    </div>
 
-  <textarea
-    id="summary"
-    class="w-full h-40 p-2 border rounded mb-2"
-    placeholder="Summary will appear here..."
-    readonly
-  ></textarea>
+    <textarea
+      id="summary"
+      class="w-full h-40 p-2 border rounded mb-2"
+      placeholder="Summary will appear here..."
+      readonly
+    ></textarea>
 
-  <script src="main.js"></script>
-</body>
+    <script src="main.js"></script>
+  </body>
 </html>

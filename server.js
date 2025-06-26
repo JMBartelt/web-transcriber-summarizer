@@ -24,7 +24,7 @@ app.post('/api/transcribe', upload.single('audio'), async (req, res) => {
     // Check password
     const { password } = req.body;
     const CORRECT_PASSWORD = 'transcribe123'; // Change this to your desired password
-    
+
     if (!password || password !== CORRECT_PASSWORD) {
       return res.status(401).json({ error: 'Invalid password' });
     }
@@ -38,14 +38,17 @@ app.post('/api/transcribe', upload.single('audio'), async (req, res) => {
     form.append('file', fs.createReadStream(filePath), 'audio.webm');
     form.append('model', 'whisper-1');
 
-    const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        ...form.getHeaders(),
+    const response = await fetch(
+      'https://api.openai.com/v1/audio/transcriptions',
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          ...form.getHeaders(),
+        },
+        body: form,
       },
-      body: form,
-    });
+    );
 
     const data = await response.json();
 
@@ -70,8 +73,8 @@ app.post('/api/transcribe', upload.single('audio'), async (req, res) => {
 app.post('/api/summarize', async (req, res) => {
   try {
     const { transcript, prompt, password } = req.body;
-    const CORRECT_PASSWORD = 'transcribe123'; // Change this to your desired password
-    
+    const CORRECT_PASSWORD = 'drsilver'; // Change this to your desired password
+
     if (!password || password !== CORRECT_PASSWORD) {
       return res.status(401).json({ error: 'Invalid password' });
     }
@@ -80,7 +83,8 @@ app.post('/api/summarize', async (req, res) => {
     if (!apiKey) {
       return res.status(500).json({ error: 'Missing OPENAI_API_KEY' });
     }
-    const chatPrompt = prompt ||
+    const chatPrompt =
+      prompt ||
       'Summarize the transcript in proper SOAP note format: Subjective, Objective, Assessment, Plan.';
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
