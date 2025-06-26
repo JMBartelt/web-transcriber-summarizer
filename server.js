@@ -73,7 +73,7 @@ app.post('/api/transcribe', upload.single('audio'), async (req, res) => {
 app.post('/api/summarize', async (req, res) => {
   try {
     const { transcript, prompt, password } = req.body;
-    const CORRECT_PASSWORD = process.env.APP_PASSWORD || 'transcribe123';
+    const CORRECT_PASSWORD = process.env.APP_PASSWORD || 'drsilver';
 
     if (!password || password !== CORRECT_PASSWORD) {
       return res.status(401).json({ error: 'Invalid password' });
