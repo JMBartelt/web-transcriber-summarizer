@@ -12,6 +12,7 @@ const copyTranscriptBtn = document.getElementById('copyTranscript');
 const copySummaryBtn = document.getElementById('copySummary');
 const copyBothBtn = document.getElementById('copyBoth');
 const recordIndicator = document.getElementById('recordIndicator');
+const summaryIndicator = document.getElementById('summaryIndicator');
 
 // helper to start a new recorder for each segment
 async function startNewRecorder() {
@@ -104,16 +105,29 @@ async function sendChunk(blob) {
 
 
 summarizeBtn.addEventListener('click', async () => {
-  const sumRes = await fetch('/api/summarize', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ transcript: transcriptEl.value })
-  });
-  const sumData = await sumRes.json();
-  summaryEl.value = sumData.summary;
-  copySummaryBtn.disabled = false;
-  if (transcriptEl.value.trim()) {
-    copyBothBtn.disabled = false;
+  // Show summary indicator and disable button
+  summaryIndicator.classList.remove('hidden');
+  summarizeBtn.disabled = true;
+  
+  try {
+    const sumRes = await fetch('/api/summarize', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ transcript: transcriptEl.value })
+    });
+    const sumData = await sumRes.json();
+    summaryEl.value = sumData.summary;
+    copySummaryBtn.disabled = false;
+    if (transcriptEl.value.trim()) {
+      copyBothBtn.disabled = false;
+    }
+  } catch (error) {
+    console.error('Error generating summary:', error);
+    alert('Error generating summary: ' + error.message);
+  } finally {
+    // Hide summary indicator and re-enable button
+    summaryIndicator.classList.add('hidden');
+    summarizeBtn.disabled = false;
   }
 });
 
