@@ -24,7 +24,7 @@ const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 5, // limit each IP to 5 requests per windowMs
   message: {
-    error: 'Too many authentication attempts, please try again later.'
+    error: 'Too many authentication attempts, please try again later.',
   },
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
@@ -36,7 +36,9 @@ app.post('/api/authenticate', authLimiter, async (req, res) => {
     const CORRECT_PASSWORD = process.env.APP_PASSWORD;
 
     if (!CORRECT_PASSWORD) {
-      return res.status(500).json({ error: 'Server configuration error: APP_PASSWORD not set' });
+      return res
+        .status(500)
+        .json({ error: 'Server configuration error: APP_PASSWORD not set' });
     }
 
     if (!password) {
@@ -62,7 +64,9 @@ app.post('/api/transcribe', upload.single('audio'), async (req, res) => {
     const CORRECT_PASSWORD = process.env.APP_PASSWORD;
 
     if (!CORRECT_PASSWORD) {
-      return res.status(500).json({ error: 'Server configuration error: APP_PASSWORD not set' });
+      return res
+        .status(500)
+        .json({ error: 'Server configuration error: APP_PASSWORD not set' });
     }
 
     if (!password || password !== CORRECT_PASSWORD) {
@@ -116,7 +120,9 @@ app.post('/api/summarize', async (req, res) => {
     const CORRECT_PASSWORD = process.env.APP_PASSWORD;
 
     if (!CORRECT_PASSWORD) {
-      return res.status(500).json({ error: 'Server configuration error: APP_PASSWORD not set' });
+      return res
+        .status(500)
+        .json({ error: 'Server configuration error: APP_PASSWORD not set' });
     }
 
     if (!password || password !== CORRECT_PASSWORD) {
@@ -164,7 +170,7 @@ Note any sections where transcription quality may have affected accuracy.`;
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini-2024-07-18',
+        model: 'gpt-4.1-2025-04-14',
         messages: [
           { role: 'system', content: chatPrompt },
           { role: 'user', content: transcript },
