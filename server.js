@@ -160,7 +160,7 @@ FORMAT:
 
 **PLAN:**
 - Only treatments, medications, follow-ups, or instructions actually discussed
-- Include dosages and instructions exactly as stated
+- Include exercises and instructions exactly as stated
 
 Note any sections where transcription quality may have affected accuracy.`;
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
