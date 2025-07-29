@@ -129,7 +129,34 @@ app.post('/api/summarize', async (req, res) => {
     }
     const chatPrompt =
       prompt ||
-      'Summarize the transcript in proper SOAP note format: Subjective, Objective, Assessment, Plan.';
+      `You are a medical documentation assistant. Create a SOAP note from the provided transcript. Follow these strict guidelines:
+
+IMPORTANT CONSTRAINTS:
+- Only include information explicitly stated in the transcript
+- If something is unclear due to transcription errors, note it as "[unclear]" 
+- Do not infer, assume, or add medical information not present in the transcript
+- If a section has no relevant information, write "Not documented" or "Not discussed"
+- Preserve exact medical terminology when clearly stated, but flag potential mishearings
+
+FORMAT:
+**SUBJECTIVE:**
+- Patient's reported symptoms, concerns, and history as stated
+- Use quotes for direct patient statements when possible
+- Flag potential transcription errors with [unclear: possibly meant "X"]
+
+**OBJECTIVE:**
+- Only documented vital signs, examination findings, test results
+- Do not assume normal findings unless explicitly stated
+
+**ASSESSMENT:**
+- Only diagnoses or clinical impressions explicitly mentioned
+- Include differential diagnoses only if discussed in transcript
+
+**PLAN:**
+- Only treatments, medications, follow-ups, or instructions actually discussed
+- Include dosages and instructions exactly as stated
+
+Note any sections where transcription quality may have affected accuracy.`;
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
