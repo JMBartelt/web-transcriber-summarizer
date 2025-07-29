@@ -151,8 +151,8 @@ FORMAT:
 - Flag potential transcription errors with [unclear: possibly meant "X"]
 
 **OBJECTIVE:**
-- Only documented vital signs, examination findings, test results
-- Do not assume normal findings unless explicitly stated
+- Only explicitly stated evaluations and examination findings.
+- Do not assume normal/abnormal findings unless explicitly stated
 
 **ASSESSMENT:**
 - Only diagnoses or clinical impressions explicitly mentioned
