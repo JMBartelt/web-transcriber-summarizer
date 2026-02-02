@@ -8,6 +8,7 @@ import FormData from 'form-data';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import rateLimit from 'express-rate-limit';
+import { spawn } from 'child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -15,6 +16,15 @@ const __dirname = dirname(__filename);
 const upload = multer({ dest: 'uploads/' });
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Replit/most hosted environments sit behind a reverse proxy and will set X-Forwarded-For.
+// express-rate-limit throws if XFF exists but trust proxy is disabled.
+if (process.env.TRUST_PROXY) {
+  const v = process.env.TRUST_PROXY;
+  app.set('trust proxy', v === 'true' ? true : Number.isFinite(Number(v)) ? Number(v) : true);
+} else {
+  app.set('trust proxy', 1);
+}
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -57,7 +67,14 @@ app.post('/api/authenticate', authLimiter, async (req, res) => {
 });
 
 app.post('/api/transcribe', upload.single('audio'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'Missing audio file' });
+  }
+
   const filePath = req.file.path;
+  const chunkIndex = req.body?.chunkIndex;
+  const sessionId = req.body?.sessionId;
+  const clientMimeType = req.body?.mimeType;
   try {
     // Check password
     const { password } = req.body;
@@ -78,26 +95,118 @@ app.post('/api/transcribe', upload.single('audio'), async (req, res) => {
       throw new Error('Missing OPENAI_API_KEY');
     }
 
-    const form = new FormData();
-    form.append('file', fs.createReadStream(filePath), 'audio.webm');
-    form.append('model', 'whisper-1');
+    if (req.file.size === 0) {
+      return res.status(400).json({ error: 'Empty audio chunk received' });
+    }
+    if (req.file.size < 1024) {
+      // Don't hard-fail; short chunks can happen at start/stop. Log for visibility.
+      console.warn('Very small audio chunk received:', {
+        chunkIndex,
+        sessionId,
+        mimetype: req.file.mimetype,
+        clientMimeType,
+        size: req.file.size,
+      });
+    }
 
-    const response = await fetch(
-      'https://api.openai.com/v1/audio/transcriptions',
-      {
+    const model = process.env.OPENAI_TRANSCRIBE_MODEL || 'whisper-1';
+    const preferredName =
+      req.file.originalname ||
+      (req.file.mimetype === 'audio/ogg' ? 'audio.ogg' : 'audio.webm');
+
+    const attemptTranscribe = async (p, name) => {
+      const form = new FormData();
+      form.append('file', fs.createReadStream(p), name);
+      form.append('model', model);
+
+      const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${apiKey}`,
           ...form.getHeaders(),
         },
         body: form,
-      },
-    );
+      });
 
-    const data = await response.json();
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const err = new Error(JSON.stringify(data));
+        err.status = response.status;
+        err.data = data;
+        throw err;
+      }
+      return data;
+    };
 
-    if (!response.ok) {
-      throw new Error(JSON.stringify(data));
+    const isTransientStatus = (status) =>
+      status === 408 || status === 425 || status === 429 || (status >= 500 && status <= 599);
+
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+    const transcribeWithRetries = async (p, name) => {
+      const maxAttempts = Number(process.env.TRANSCRIBE_RETRIES || 4);
+      let lastErr = null;
+      for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        try {
+          return await attemptTranscribe(p, name);
+        } catch (e) {
+          lastErr = e;
+          const status = e?.status;
+          if (!isTransientStatus(status)) break;
+          const delay = Math.min(30000, 1500 * Math.pow(2, attempt));
+          await sleep(delay);
+        }
+      }
+      throw lastErr;
+    };
+
+    const isDecodeError = (data) => {
+      const msg = data?.error?.message || '';
+      return typeof msg === 'string' && msg.toLowerCase().includes('could not be decoded');
+    };
+
+    const safeJsonForLog = (obj) => {
+      try {
+        return JSON.stringify(obj);
+      } catch (_) {
+        return '[unserializable error]';
+      }
+    };
+
+    let data;
+    try {
+      data = await transcribeWithRetries(filePath, preferredName);
+    } catch (e) {
+      // If the browser produces a chunk OpenAI can't decode, try transcoding to WAV and retrying.
+      const errData = e?.data;
+      if (isDecodeError(errData)) {
+        const wavPath = `${filePath}.wav`;
+        const transcoded = await transcodeToWav(filePath, wavPath);
+        if (transcoded) {
+          data = await transcribeWithRetries(wavPath, 'audio.wav');
+          // Best-effort cleanup of temp wav; original file cleanup happens in finally.
+          fs.unlink(wavPath, () => {});
+        } else {
+          console.error(
+            'Transcription decode error; ffmpeg not available for fallback.',
+            {
+              chunkIndex,
+              sessionId,
+              mimetype: req.file.mimetype,
+              clientMimeType,
+              size: req.file.size,
+              error: safeJsonForLog(errData),
+            },
+          );
+          throw new Error(
+            'OpenAI could not decode this audio chunk, and server-side ffmpeg fallback is unavailable. ' +
+              'Install ffmpeg or set FFMPEG_PATH to enable automatic transcoding retries. ' +
+              `Original error: ${e.message}`,
+          );
+        }
+      } else {
+        throw e;
+      }
     }
 
     res.json({ transcript: data.text });
@@ -191,3 +300,27 @@ Note any sections where transcription quality may have affected accuracy.`;
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
+
+async function transcodeToWav(inputPath, outputPath) {
+  const ffmpegPath = process.env.FFMPEG_PATH || 'ffmpeg';
+
+  // Try to run ffmpeg; if it isn't present, return null so the caller can fall back.
+  const args = [
+    '-y',
+    '-loglevel',
+    'error',
+    '-i',
+    inputPath,
+    '-ac',
+    '1',
+    '-ar',
+    '16000',
+    outputPath,
+  ];
+
+  return await new Promise((resolve) => {
+    const child = spawn(ffmpegPath, args, { stdio: 'ignore' });
+    child.on('error', () => resolve(null));
+    child.on('exit', (code) => resolve(code === 0 ? outputPath : null));
+  });
+}
