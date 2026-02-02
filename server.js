@@ -248,30 +248,61 @@ app.post('/api/summarize', async (req, res) => {
 
 IMPORTANT CONSTRAINTS:
 - Only include information explicitly stated in the transcript
-- If something is unclear due to transcription errors, note it as "[unclear]" 
+- If something is unclear due to transcription errors, note it as "[unclear]"
 - Do not infer, assume, or add medical information not present in the transcript
-- If a section has no relevant information, write "Not documented" or "Not discussed"
 - Preserve exact medical terminology when clearly stated, but flag potential mishearings
+- For every included subsection below, you MUST include at least one exact supporting quote from the transcript
+- If you cannot provide a relevant supporting quote for a subsection, OMIT that subsection entirely (do not write "Not documented" / "Not discussed")
+- Always include the top-level SOAP headers (SUBJECTIVE / OBJECTIVE / ASSESSMENT / PLAN). If a header would otherwise be empty, write "- No relevant information explicitly stated in transcript."
 
 FORMAT:
 SUBJECTIVE:
-- Patient's reported symptoms, concerns, and history as stated
-- Use quotes for direct patient statements when possible
-- Flag potential transcription errors with [unclear: possibly meant "X"]
+- Chief Complaint:
+  Evidence: "<exact quote>"
+- Pain Scale (1-10):
+  Evidence: "<exact quote>"
+- Aggravating Factors:
+  Evidence: "<exact quote>"
+- Alleviating Factors:
+  Evidence: "<exact quote>"
+- (Optional) Other subjective history explicitly stated:
+  Evidence: "<exact quote>"
 
 OBJECTIVE:
-- Only explicitly stated evaluations and examination findings.
-- Do not assume normal/abnormal findings unless explicitly stated
+- Observations (e.g., gait, posture, movement quality, swelling, etc):
+  Evidence: "<exact quote>"
+- Range of Motion:
+  - Active range of motion (AROM):
+    Evidence: "<exact quote>"
+  - Passive range of motion (PROM):
+    Evidence: "<exact quote>"
+- Manual Muscle Tests (MMT) (include ratings if stated):
+  Evidence: "<exact quote>"
+- Functional Tests:
+  Evidence: "<exact quote>"
+- Special Tests:
+  Evidence: "<exact quote>"
+- Treatment (what was done in-session):
+  Evidence: "<exact quote>"
 
 ASSESSMENT:
-- Only diagnoses or clinical impressions explicitly mentioned
-- Include differential diagnoses only if discussed in transcript
+- Analysis (clinical reasoning / progress / response to treatment, ONLY if explicitly stated):
+  Evidence: "<exact quote>"
+- Assessment / Clinical Impression (diagnosis, prognosis, or therapist impression, ONLY if explicitly stated):
+  Evidence: "<exact quote>"
 
 PLAN:
-- Only treatments, medications, follow-ups, or instructions actually discussed
-- Include exercises and instructions exactly as stated
+- Education (what was taught or discussed with patient):
+  Evidence: "<exact quote>"
+- Home Exercise Program (HEP):
+  Evidence: "<exact quote>"
+- Plan (next steps, frequency, follow-ups, referrals, precautions, etc, ONLY if explicitly stated):
+  Evidence: "<exact quote>"
 
-Note any sections where transcription quality may have affected accuracy.`;
+QUALITY:
+- Use short quotes (1-2 sentences) and keep them verbatim (do not paraphrase inside quotes)
+- If unclear due to transcription quality, include: [unclear] and optionally [unclear: possibly meant "X"]
+- Do not add measurements, test results, diagnoses, or plans that are not explicitly stated in the transcript.`;
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
