@@ -135,7 +135,7 @@ app.post('/api/summarize', async (req, res) => {
     }
     const chatPrompt =
       prompt ||
-      `You are a medical documentation assistant. Create a SOAP note from the provided transcript. Follow these strict guidelines:
+      `You are a physical therapy documentation assistant. Create a SOAP note from the provided transcript. Follow these strict guidelines:
 
 IMPORTANT CONSTRAINTS:
 - Only include information explicitly stated in the transcript
@@ -145,20 +145,20 @@ IMPORTANT CONSTRAINTS:
 - Preserve exact medical terminology when clearly stated, but flag potential mishearings
 
 FORMAT:
-**SUBJECTIVE:**
+SUBJECTIVE:
 - Patient's reported symptoms, concerns, and history as stated
 - Use quotes for direct patient statements when possible
 - Flag potential transcription errors with [unclear: possibly meant "X"]
 
-**OBJECTIVE:**
+OBJECTIVE:
 - Only explicitly stated evaluations and examination findings.
 - Do not assume normal/abnormal findings unless explicitly stated
 
-**ASSESSMENT:**
+ASSESSMENT:
 - Only diagnoses or clinical impressions explicitly mentioned
 - Include differential diagnoses only if discussed in transcript
 
-**PLAN:**
+PLAN:
 - Only treatments, medications, follow-ups, or instructions actually discussed
 - Include exercises and instructions exactly as stated
 
@@ -170,7 +170,7 @@ Note any sections where transcription quality may have affected accuracy.`;
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4.1-2025-04-14',
+        model: 'gpt-5.2-2025-12-11',
         messages: [
           { role: 'system', content: chatPrompt },
           { role: 'user', content: transcript },

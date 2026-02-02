@@ -1,0 +1,124 @@
+2026-02-02 14:05:06.78
+b08a5807
+User
+> wavtools@0.1.5 start
+2026-02-02 14:05:06.78
+b08a5807
+User
+> node server.js
+2026-02-02 14:05:07.24
+b08a5807
+User
+Server listening on port 3000
+2026-02-02 14:05:09.81
+b08a5807
+User
+code: 'ERR_ERL_UNEXPECTED_X_FORWARDED_FOR',
+2026-02-02 14:05:09.81
+b08a5807
+User
+at wrappedValidations. [as xForwardedForHeader] (file:///home/runner/workspace/node_modules/express-rate-limit/dist/index.mjs:369:22)
+2026-02-02 14:05:09.81
+b08a5807
+User
+ValidationError: The 'X-Forwarded-For' header is set but the Express 'trust proxy' setting is false (default). This could indicate a misconfiguration which would prevent express-rate-limit from accurately identifying users. See https://express-rate-limit.github.io/ERR_ERL_UNEXPECTED_X_FORWARDED_FOR/ for more information.
+2026-02-02 14:05:09.81
+b08a5807
+User
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2026-02-02 14:05:09.81
+b08a5807
+User
+at Object.keyGenerator (file:///home/runner/workspace/node_modules/express-rate-limit/dist/index.mjs:630:20)
+2026-02-02 14:05:09.81
+b08a5807
+User
+at Object.xForwardedForHeader (file:///home/runner/workspace/node_modules/express-rate-limit/dist/index.mjs:157:13)
+2026-02-02 14:05:09.81
+b08a5807
+User
+at file:///home/runner/workspace/node_modules/express-rate-limit/dist/index.mjs:682:32
+2026-02-02 14:05:09.81
+b08a5807
+User
+}
+2026-02-02 14:05:09.81
+b08a5807
+User
+help: 'https://express-rate-limit.github.io/ERR_ERL_UNEXPECTED_X_FORWARDED_FOR/'
+2026-02-02 14:05:09.81
+b08a5807
+User
+at async file:///home/runner/workspace/node_modules/express-rate-limit/dist/index.mjs:663:5 {
+2026-02-02 14:23:24.62
+b08a5807
+System
+system: received signal terminated
+2026-02-02 14:34:22.36
+b08a5807
+System
+metasidecar: loaded enterprise status from environment is_enterprise=false
+2026-02-02 14:34:22.36
+b08a5807
+System
+starting up user application
+2026-02-02 14:34:22.36
+b08a5807
+System
+forwarding local port 3000 to external port 80 (mapped as 1104)
+2026-02-02 14:34:23.14
+b08a5807
+User
+> node server.js
+2026-02-02 14:34:23.14
+b08a5807
+User
+> wavtools@0.1.5 start
+2026-02-02 14:34:23.51
+b08a5807
+User
+Server listening on port 3000
+2026-02-02 14:49:34.64
+b08a5807
+System
+system: received signal terminated
+2026-02-02 15:06:32.20
+b08a5807
+System
+starting up user application
+2026-02-02 15:06:32.20
+b08a5807
+System
+forwarding local port 3000 to external port 80 (mapped as 1104)
+2026-02-02 15:06:32.20
+b08a5807
+System
+metasidecar: loaded enterprise status from environment is_enterprise=false
+2026-02-02 15:06:33.44
+b08a5807
+User
+> wavtools@0.1.5 start
+2026-02-02 15:06:33.44
+b08a5807
+User
+> node server.js
+2026-02-02 15:06:33.84
+b08a5807
+User
+Server listening on port 3000
+2026-02-02 15:07:25.74
+b08a5807
+User
+Transcription error: Error: {"error":{"message":"The audio file could not be decoded or its format is not supported.","type":"invalid_request_error","param":null,"code":null},"usage":{"type":"duration","seconds":0}}
+2026-02-02 15:07:25.74
+b08a5807
+User
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2026-02-02 15:07:25.74
+b08a5807
+User
+at file:///home/runner/workspace/server.js:100:13
+2026-02-02 15:22:54.66
+b08a5807
+System
+system: received signal terminated
